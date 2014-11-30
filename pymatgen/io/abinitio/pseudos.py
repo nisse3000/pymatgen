@@ -117,7 +117,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
     @staticmethod
     def from_file(filename):
         """
-        Return a pseudopotential object from filename.
+        Return a Pseudo object from filename.
         Note: the parser knows the concrete class that should be instanciated
         """
         return PseudoParser().parse(filename)
@@ -173,7 +173,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def element(self):
-        """Pymatgen `Element`."""
+        """Pymatgen :class:`Element`."""
         #return Element.from_Z(self.Z)
         try:
             return _PTABLE[self.Z]
@@ -241,13 +241,13 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def has_dojo_report(self):
-        """True if self contains the DOJO_REPORT section."""
+        """True if self contains the `DOJO_REPORT` section."""
         return bool(self.dojo_report)
 
     def delta_factor(self, accuracy="normal"):
         """
         Returns the deltafactor [meV/natom] computed with the given accuracy.
-        None if self does not have info on the deltafactor.
+        None if the `Pseudo` does not have info on the deltafactor.
         """
         if not self.has_dojo_report:
             return None
@@ -258,14 +258,14 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
 
     def read_dojo_report(self):
         """
-        Read the DOJO_REPORT section and set dojo_report attribute. 
+        Read the `DOJO_REPORT` section and set dojo_report attribute.
         returns {} if section is not present.
         """ 
         self.dojo_report = read_dojo_report(self.path)
         return self.dojo_report
 
     def write_dojo_report(self, report=None):
-        """Write a new DOJO_REPORT section to the pseudopotential file."""
+        """Write a new `DOJO_REPORT` section to the pseudopotential file."""
         if report is None:
             report = self.dojo_report
 
@@ -295,7 +295,7 @@ class Pseudo(six.with_metaclass(abc.ABCMeta, object)):
                 fh.writelines(lines)
 
     def remove_dojo_report(self):
-        """Remove the DOJO_REPORT section from the pseudopotential file."""
+        """Remove the `DOJO_REPORT` section from the pseudopotential file."""
         # Read lines from file and insert jstring between the tags.
         with open(self.path, "r") as fh:
             lines = fh.readlines()
@@ -403,10 +403,8 @@ class AbinitPseudo(Pseudo):
     def __init__(self, path, header):
         """
         Args:
-            path:
-                Filename.
-            header:
-                `AbinitHeader` instance.
+            path: Filename.
+            header: :class:`AbinitHeader` instance.
         """
         self.path = path
         self._summary = header.summary
@@ -447,9 +445,7 @@ class AbinitPseudo(Pseudo):
 
 
 class NcAbinitPseudo(NcPseudo, AbinitPseudo):
-    """
-    Norm-conserving pseudopotential in the Abinit format.
-    """
+    """Norm-conserving pseudopotential in the Abinit format."""
     @property
     def summary(self):
         return self._summary.strip()
@@ -581,9 +577,7 @@ def _int_from_str(string):
 
 
 class NcAbinitHeader(AbinitHeader):
-    """
-    The abinit header found in the NC pseudopotential files.
-    """
+    """The abinit header found in the NC pseudopotential files."""
     _attr_desc = collections.namedtuple("att", "default astype")
 
     _VARS = {
@@ -675,6 +669,26 @@ class NcAbinitHeader(AbinitHeader):
         return NcAbinitHeader(summary, **header)
 
     @staticmethod
+    def gth_header(filename, ppdesc):
+        """Parse the GTH abinit header."""
+        # Example:
+        #Goedecker-Teter-Hutter  Wed May  8 14:27:44 EDT 1996
+        #1   1   960508                     zatom,zion,pspdat
+        #2   1   0    0    2001    0.       pspcod,pspxc,lmax,lloc,mmax,r2well
+        #0.2000000 -4.0663326  0.6778322 0 0     rloc, c1, c2, c3, c4
+        #0 0 0                              rs, h1s, h2s
+        #0 0                                rp, h1p
+        #  1.36 .2   0.6                    rcutoff, rloc
+        lines = _read_nlines(filename, -1)
+
+        header = _dict_from_lines(lines[:3], [0, 3, 6])
+        summary = lines[0]
+
+        header["dojo_report"] = read_dojo_report(filename)
+
+        return NcAbinitHeader(summary, **header)
+
+    @staticmethod
     def oncvpsp_header(filename, ppdesc):
         """Parse the ONCVPSP abinit header."""
         # Example
@@ -756,9 +770,7 @@ class NcAbinitHeader(AbinitHeader):
 
 
 class PawAbinitHeader(AbinitHeader):
-    """
-    The abinit header found in the PAW pseudopotential files.
-    """
+    """The abinit header found in the PAW pseudopotential files."""
     _attr_desc = collections.namedtuple("att", "default astype")
 
     _VARS = {
@@ -906,14 +918,15 @@ class PseudoParser(object):
 
     # TODO Recheck
     _PSPCODES = collections.OrderedDict( {
-        1 : ppdesc(1, "TM",  "NC", None),
-        3 : ppdesc(3, "HGH", "NC", None),
-        #4 : ppdesc(4, "NC",     , None),
-        #5 : ppdesc(5, "NC",     , None),
-        6 : ppdesc(6, "FHI", "NC", None),
-        7 : ppdesc(6, "PAW_abinit_text", "PAW", None),
-        8 : ppdesc(8, "ONCVPSP", "NC", None),
-       10 : ppdesc(10, "HGHK", "NC", None),
+        1: ppdesc(1, "TM",  "NC", None),
+        2: ppdesc(2, "GTH",  "NC", None),
+        3: ppdesc(3, "HGH", "NC", None),
+        #4: ppdesc(4, "NC",     , None),
+        #5: ppdesc(5, "NC",     , None),
+        6: ppdesc(6, "FHI", "NC", None),
+        7: ppdesc(6, "PAW_abinit_text", "PAW", None),
+        8: ppdesc(8, "ONCVPSP", "NC", None),
+       10: ppdesc(10, "HGHK", "NC", None),
     })
     del ppdesc
     # renumber functionals from oncvpsp todo confrim that 3 is 2
@@ -934,14 +947,11 @@ class PseudoParser(object):
         Analyze the files contained in directory dirname.
 
         Args:
-            dirname:
-                directory path
-            exclude_exts:
-                list of file extensions that should be skipped.
-            exclude_fnames:
-                list of file names that should be skipped.
+            dirname: directory path
+            exclude_exts: list of file extensions that should be skipped.
+            exclude_fnames: list of file names that should be skipped.
 
-        returns: 
+        Returns:
             List of pseudopotential objects.
         """
         for (i, ext) in enumerate(exclude_exts):
@@ -1047,6 +1057,7 @@ class PseudoParser(object):
 
         parsers = {
             "FHI"            : NcAbinitHeader.fhi_header,
+            "GTH"            : NcAbinitHeader.gth_header,
             "TM"             : NcAbinitHeader.tm_header,
             "HGH"            : NcAbinitHeader.hgh_header,
             "HGHK"           : NcAbinitHeader.hgh_header,

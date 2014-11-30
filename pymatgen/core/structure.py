@@ -1280,35 +1280,42 @@ class IStructure(SiteCollection, PMGSONable):
         Returns:
             Structure.
         """
+        if filename.endswith(".nc"):
+            # Read Structure from a netcdf file.
+            from pymatgen.io.abinitio.netcdf import structure_from_ncdata
+            return structure_from_ncdata(filename, cls=cls)
+
         from pymatgen.io.vaspio import Vasprun, Chgcar
         from monty.io import zopen
         fname = os.path.basename(filename)
         with zopen(filename) as f:
             contents = f.read()
         if fnmatch(fname.lower(), "*.cif*"):
-            return Structure.from_str(contents, fmt="cif",
-                                      primitive=primitive, sort=sort)
+            return cls.from_str(contents, fmt="cif",
+                                primitive=primitive, sort=sort)
         elif fnmatch(fname, "POSCAR*") or fnmatch(fname, "CONTCAR*"):
-            return Structure.from_str(contents, fmt="poscar",
-                                      primitive=primitive, sort=sort)
+            return cls.from_str(contents, fmt="poscar",
+                                primitive=primitive, sort=sort)
 
         elif fnmatch(fname, "CHGCAR*") or fnmatch(fname, "LOCPOT*"):
             s = Chgcar.from_file(filename).structure
         elif fnmatch(fname, "vasprun*.xml*"):
             s = Vasprun(filename).final_structure
         elif fnmatch(fname.lower(), "*.cssr*"):
-            return Structure.from_str(contents, fmt="cssr",
-                                      primitive=primitive, sort=sort)
+            return cls.from_str(contents, fmt="cssr",
+                                primitive=primitive, sort=sort)
         elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
-            return Structure.from_str(contents, fmt="json",
-                                      primitive=primitive, sort=sort)
+            return cls.from_str(contents, fmt="json",
+                                primitive=primitive, sort=sort)
         elif fnmatch(fname, "*.yaml*"):
-            return Structure.from_str(contents, fmt="yaml",
-                                      primitive=primitive, sort=sort)
+            return cls.from_str(contents, fmt="yaml",
+                                primitive=primitive, sort=sort)
         else:
             raise ValueError("Unrecognized file extension!")
         if sort:
             s = s.get_sorted_structure()
+
+        s.__class__ = cls
         return s
 
 
@@ -1659,7 +1666,7 @@ class IMolecule(SiteCollection, PMGSONable):
         return [(site, dist) for (site, dist) in outer if dist > inner]
 
     def get_boxed_structure(self, a, b, c, images=(1, 1, 1),
-                            random_rotation=False, min_dist=1):
+                            random_rotation=False, min_dist=1, cls=None):
         """
         Creates a Structure from a Molecule by putting the Molecule in the
         center of a orthorhombic box. Useful for creating Structure for
@@ -1679,6 +1686,7 @@ class IMolecule(SiteCollection, PMGSONable):
                 each other. This is only used if random_rotation is True.
                 The randomized rotations are searched such that no two atoms
                 are less than min_dist from each other.
+            cls: The Structure class to instantiate (defaults to pymatgen structure)
 
         Returns:
             Structure containing molecule in a box.
@@ -1718,9 +1726,10 @@ class IMolecule(SiteCollection, PMGSONable):
             coords.extend(new_coords)
         sprops = {k: v * nimages for k, v in self.site_properties.items()}
 
-        return Structure(lattice, self.species * nimages, coords,
-                         coords_are_cartesian=True,
-                         site_properties=sprops).get_sorted_structure()
+        if cls is None: cls = Structure
+        return cls(lattice, self.species * nimages, coords,
+                   coords_are_cartesian=True,
+                   site_properties=sprops).get_sorted_structure()
 
     def get_centered_molecule(self):
         """
@@ -1844,24 +1853,26 @@ class IMolecule(SiteCollection, PMGSONable):
             contents = f.read()
         fname = filename.lower()
         if fnmatch(fname, "*.xyz*"):
-            return Molecule.from_str(contents, fmt="xyz")
+            return cls.from_str(contents, fmt="xyz")
         elif any([fnmatch(fname.lower(), "*.{}*".format(r))
                   for r in ["gjf", "g03", "g09", "com", "inp"]]):
-            return Molecule.from_str(contents, fmt="g09")
+            return cls.from_str(contents, fmt="g09")
         elif any([fnmatch(fname.lower(), "*.{}*".format(r))
                   for r in ["out", "lis", "log"]]):
             return GaussianOutput(filename).final_structure
         elif fnmatch(fname, "*.json*") or fnmatch(fname, "*.mson*"):
-            return Molecule.from_str(contents, fmt="json")
+            return cls.from_str(contents, fmt="json")
         elif fnmatch(fname, "*.yaml*"):
-            return Molecule.from_str(contents, fmt="yaml")
+            return cls.from_str(contents, fmt="yaml")
         else:
             from pymatgen.io.babelio import BabelMolAdaptor
             m = re.search("\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)",
                           filename.lower())
             if m:
-                return BabelMolAdaptor.from_file(filename,
-                                                 m.group(1)).pymatgen_mol
+                new = BabelMolAdaptor.from_file(filename,
+                                                m.group(1)).pymatgen_mol
+                new.__class__ = cls
+                return new
 
         raise ValueError("Unrecognized file extension!")
 

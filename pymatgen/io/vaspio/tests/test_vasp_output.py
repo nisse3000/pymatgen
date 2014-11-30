@@ -132,6 +132,9 @@ class VasprunTest(unittest.TestCase):
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][0], 3.26105533)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[0][1], -0.00459066)
         self.assertAlmostEqual(vasprun_dfpt.epsilon_static[2][2], 3.24330517)
+        self.assertAlmostEqual(vasprun_dfpt.epsilon_static_wolfe[0][0], 3.33402531)
+        self.assertAlmostEqual(vasprun_dfpt.epsilon_static_wolfe[0][1], -0.00559998)
+        self.assertAlmostEqual(vasprun_dfpt.epsilon_static_wolfe[2][2], 3.31237357)
         self.assertTrue(vasprun_dfpt.converged)
 
         entry = vasprun_dfpt.get_computed_entry()
@@ -243,6 +246,28 @@ class OutcarTest(unittest.TestCase):
         filepath = os.path.join(test_dir, 'OUTCAR.stopped')
         outcar = Outcar(filepath)
         self.assertTrue(outcar.is_stopped)
+
+        for f in ['OUTCAR.lepsilon', 'OUTCAR.lepsilon.gz']:
+            filepath = os.path.join(test_dir, f)
+            outcar = Outcar(filepath)
+
+            outcar.read_lepsilon()
+            outcar.read_lepsilon_ionic()
+
+            self.assertAlmostEqual(outcar.dielectric_tensor[0][0], 3.716432)
+            self.assertAlmostEqual(outcar.dielectric_tensor[0][1], -0.20464)
+            self.assertAlmostEqual(outcar.dielectric_tensor[1][2], -0.20464)
+            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[0][0], 0.001419)
+            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[0][2], 0.001419)
+            self.assertAlmostEqual(outcar.dielectric_ionic_tensor[2][2], 0.001419)
+            self.assertAlmostEqual(outcar.piezo_tensor[0][0], 0.52799)
+            self.assertAlmostEqual(outcar.piezo_tensor[1][3], 0.35998)
+            self.assertAlmostEqual(outcar.piezo_tensor[2][5], 0.35997)
+            self.assertAlmostEqual(outcar.piezo_ionic_tensor[0][0], 0.05868)
+            self.assertAlmostEqual(outcar.piezo_ionic_tensor[1][3], 0.06241)
+            self.assertAlmostEqual(outcar.piezo_ionic_tensor[2][5], 0.06242)
+            self.assertAlmostEqual(outcar.born[0][1][2], -0.385)
+            self.assertAlmostEqual(outcar.born[1][2][0], 0.36465)
 
     def test_core_state_eigen(self):
         filepath = os.path.join(test_dir, "OUTCAR.CL")
