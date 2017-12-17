@@ -897,7 +897,7 @@ class LocalStructOrderParas(object):
         "pent_plan", "sq", "tet", "tri_pyr", \
         "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "sq_bipyr", "oct", \
         "oct_legacy", "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", \
-        "T", "cuboct", "see_saw", "bcc", "q2", "q4", "q6")
+        "T", "cuboct", "see_saw", "bcc", "q2", "q4", "q6", "oct_max")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -1030,7 +1030,7 @@ class LocalStructOrderParas(object):
                 ["tet", "oct", "bcc", "sq_pyr", "sq_pyr_legacy", \
                  "tri_bipyr", "sq_bipyr", "oct_legacy", "tri_plan", \
                  "sq_plan", "pent_plan", "tri_pyr", "pent_pyr", "hex_pyr", \
-                 "pent_bipyr", "hex_bipyr", "T", "cuboct"]):
+                 "pent_bipyr", "hex_bipyr", "T", "cuboct", "oct_max"]):
             self._computerijs = self._geomops = True
         if not set(self._types).isdisjoint(["reg_tri", "sq"]):
             self._computerijs = self._computerjks = self._geomops2 = True
@@ -1726,7 +1726,7 @@ class LocalStructOrderParas(object):
                                 gaussthetak[i] = exp(-0.5 * tmp * tmp)
                             elif t in ["sq_plan", "oct", "oct_legacy",
                                        "see_saw", "tri_bipyr", "sq_bipyr",
-                                       "pent_bipyr", "hex_bipyr", "cuboct"]:
+                                       "pent_bipyr", "hex_bipyr", "cuboct", "oct_max"]:
                                 if thetak >= self._paras[i]['min_SPP']:
                                     tmp = self._paras[i]['IGW_SPP'] * (
                                             thetak * ipi - 1.0)
@@ -1808,7 +1808,7 @@ class LocalStructOrderParas(object):
                                         elif t in ["sq_plan", "oct",
                                                    "oct_legacy", "tri_bipyr",
                                                    "sq_bipyr", "pent_bipyr",
-                                                   "hex_bipyr"]:
+                                                   "hex_bipyr", "oct_max"]:
                                             if thetak < self._paras[i]['min_SPP'] and thetam < self._paras[i]['min_SPP']:
                                                 tmp = cos(
                                                     self._paras[i]['fac_AA'] *
@@ -1878,7 +1878,7 @@ class LocalStructOrderParas(object):
                         if sum(norms[i]) > 1.0e-12 else None
                 elif t in ["T", "tri_pyr", "see_saw", "sq_pyr", "tri_bipyr",
                            "sq_bipyr", "pent_pyr", "hex_pyr", "pent_bipyr",
-                           "hex_bipyr"]:
+                           "hex_bipyr", "oct_max"]:
                     for j in range(nneigh):
                         qsptheta[i][j] = qsptheta[i][j] / norms[i][j] \
                             if norms[i][j] > 1.0e-12 else 0.0

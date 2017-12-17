@@ -32,6 +32,19 @@ tet:
     1.5
   exp_cos_AA:
     2
+oct_max:
+  min_SPP:
+    2.792526803190927
+  IGW_SPP:
+    15
+  IGW_EP:
+    18
+  w_SPP:
+    3
+  fac_AA:
+    2
+  exp_cos_AA:
+    2
 oct:
   min_SPP:
     2.792526803190927
