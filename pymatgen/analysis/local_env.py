@@ -893,11 +893,15 @@ class LocalStructOrderParas(object):
     """
 
     __supported_types = (
-        "cn", "sgl_bd", "bent", "tri_plan", "reg_tri", "sq_plan", \
-        "pent_plan", "sq", "tet", "tri_pyr", \
+        "cn", "sgl_bd", "bent", "tri_plan", "tri_plan_max", "reg_tri", "sq_plan", \
+        "sq_plan_max", "pent_plan", "pent_plan_max", "sq", "tet", "tet_max", "tri_pyr", \
         "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "sq_bipyr", "oct", \
         "oct_legacy", "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", \
+<<<<<<< HEAD
         "T", "cuboct", "see_saw", "bcc", "hex_plan", "q2", "q4", "q6")
+=======
+        "T", "cuboct", "cuboct_max", "see_saw", "bcc", "q2", "q4", "q6", "oct_max")
+>>>>>>> dc3e3e634301ad20bbf6bcb81e02b90328d7b11b
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -1029,8 +1033,9 @@ class LocalStructOrderParas(object):
         if not set(self._types).isdisjoint(
                 ["tet", "oct", "bcc", "sq_pyr", "sq_pyr_legacy", \
                  "tri_bipyr", "sq_bipyr", "oct_legacy", "tri_plan", \
-                 "sq_plan", "pent_plan", "tri_pyr", "pent_pyr", "hex_pyr", \
-                 "pent_bipyr", "hex_bipyr", "T", "cuboct"]):
+                 "sq_plan", "pent_plan",  "tri_pyr", "pent_pyr", "hex_pyr", \
+                 "pent_bipyr", "hex_bipyr", "T", "cuboct", "oct_max", "tet_max", \
+                 "tri_plan_max", "sq_plan_max", "pent_plan_max", "cuboct_max"]):
             self._computerijs = self._geomops = True
         if not set(self._types).isdisjoint(["reg_tri", "sq"]):
             self._computerijs = self._computerjks = self._geomops2 = True
@@ -1634,7 +1639,7 @@ class LocalStructOrderParas(object):
                         kk = kk + 1
         # Initialize OP list and, then, calculate OPs.
         ops = [0.0 for t in self._types]
-        norms = [[0.0 for i in range(nneigh)] for t in self._types]
+        #norms = [[[] for j in range(nneigh)] for t in self._types]
 
         # First, coordination number and distance-based OPs.
         for i, t in enumerate(self._types):
@@ -1689,7 +1694,8 @@ class LocalStructOrderParas(object):
         #  Zimmermann et al., J. Am. Chem. Soc., under revision, 2015).
         if self._geomops:
             gaussthetak = [0.0 for t in self._types]  # not used by all OPs
-            qsptheta = [[] for t in self._types]  # not used by all OPs
+            qsptheta = [[[] for j in range(nneigh)] for t in self._types]
+            norms = [[[] for j in range(nneigh)] for t in self._types]
             ipi = 1.0 / pi
             piover2 = pi / 2.0
             tetangoverpi = acos(-1.0 / 3.0) * ipi  # xxx: delete
@@ -1698,10 +1704,12 @@ class LocalStructOrderParas(object):
             twothird = 2.0 / 3.0
             for j in range(nneigh):  # Neighbor j is put to the North pole.
                 zaxis = rijnorm[j]
-                for i, t in enumerate(self._types):
-                    qsptheta[i].append(0.0)
+                kc = 0
                 for k in range(nneigh):  # From neighbor k, we construct
                     if j != k:  # the prime meridian.
+                        for i in range(len(self._types)):
+                            qsptheta[i][j].append(0.0)
+                            norms[i][j].append(0)
                         tmp = max(
                             -1.0, min(np.inner(zaxis, rijnorm[k]), 1.0))
                         thetak = acos(tmp)
@@ -1718,41 +1726,65 @@ class LocalStructOrderParas(object):
                             if t in ["bent", "sq_pyr_legacy"]:
                                 tmp = self._paras[i]['IGW_TA'] * (
                                         thetak * ipi - self._paras[i]['TA'])
-                                qsptheta[i][j] += exp(-0.5 * tmp * tmp)
-                                norms[i][j] += 1
-                            elif t in ["tri_plan", "tet"]:
+                                qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
+                                norms[i][j][kc] += 1
+                            elif t in ["tri_plan", "tri_plan_max", "tet", "tet_max"]:
                                 tmp = self._paras[i]['IGW_TA'] * (
                                         thetak * ipi - self._paras[i]['TA'])
                                 gaussthetak[i] = exp(-0.5 * tmp * tmp)
+<<<<<<< HEAD
                             elif t in ["sq_plan", "hex_plan",
                                        "oct", "oct_legacy",
+=======
+                                if t in ["tri_plan_max", "tet_max"]:
+                                    qsptheta[i][j][kc] += gaussthetak[i]
+                                    norms[i][j][kc] += 1
+                            elif t in ["T", "tri_pyr", "sq_pyr", "pent_pyr", "hex_pyr"]:
+                                tmp = self._paras[i]['IGW_EP'] * (thetak * ipi - 0.5)
+                                qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
+                                norms[i][j][kc] += 1
+                            elif t in ["sq_plan", "oct", "oct_legacy",
+>>>>>>> dc3e3e634301ad20bbf6bcb81e02b90328d7b11b
                                        "see_saw", "tri_bipyr", "sq_bipyr",
-                                       "pent_bipyr", "hex_bipyr", "cuboct"]:
+                                       "pent_bipyr", "hex_bipyr", "cuboct",
+                                       "oct_max", "sq_plan_max", "cuboct_max"]:
                                 if thetak >= self._paras[i]['min_SPP']:
                                     tmp = self._paras[i]['IGW_SPP'] * (
                                             thetak * ipi - 1.0)
-                                    if t in ["tri_bipyr", "sq_bipyr",
-                                             "pent_bipyr", "hex_bipyr"]:
-                                        qsptheta[i][j] = (
-                                                self._paras[i]['w_SPP'] *
-                                                exp(-0.5 * tmp * tmp))
-                                    else:
-                                        qsptheta[i][j] += (
-                                                self._paras[i]['w_SPP'] *
-                                                exp(-0.5 * tmp * tmp))
-                                    norms[i][j] += self._paras[i]['w_SPP']
-                            elif t == "pent_plan":
-                                if thetak <= self._paras[i]['TA'] * pi:
-                                    tmp = self._paras[i]['IGW_TA'] * (
-                                            thetak * ipi - 0.4)
-                                    gaussthetak[i] = exp(-0.5 * tmp * tmp)
+                                    #if t in ["tri_bipyr", "sq_bipyr",
+                                    #         "pent_bipyr", "hex_bipyr"]:
+                                    #    qsptheta[i][j] = (
+                                    #            self._paras[i]['w_SPP'] *
+                                    #            exp(-0.5 * tmp * tmp))
+                                    #else:
+                                    qsptheta[i][j][kc] += (
+                                            self._paras[i]['w_SPP'] *
+                                            exp(-0.5 * tmp * tmp))
+                                    norms[i][j][kc] += self._paras[i]['w_SPP']
+                                elif t in ["see_saw", "tri_bipyr", "sq_bipyr",
+                                           "pent_bipyr", "hex_bipyr", "oct_max",
+                                           "sq_plan_max"]:
+                                    tmp = self._paras[i]['IGW_EP'] * (
+                                            thetak * ipi - 0.5)
+                                    qsptheta[i][j][kc] += exp(
+                                        -0.5 * tmp * tmp)
+                                    norms[i][j][kc] += 1
+                            elif t in ["pent_plan", "pent_plan_max"]:
+                                tmp = 0.4 if thetak <= self._paras[i]['TA'] * pi \
+                                        else 0.8
+                                tmp2 = self._paras[i]['IGW_TA'] * (
+                                        thetak * ipi - tmp)
+                                gaussthetak[i] = exp(-0.5 * tmp2 * tmp2)
+                                if t == "pent_plan_max":
+                                    qsptheta[i][j][kc] += gaussthetak[i]
+                                    norms[i][j][kc] += 1
                             elif t == "bcc" and j < k:
                                 if thetak >= self._paras[i]['min_SPP']:
                                     tmp = self._paras[i]['IGW_SPP'] * (
                                             thetak * ipi - 1.0)
-                                    qsptheta[i][j] += (self._paras[i]['w_SPP'] *
+                                    qsptheta[i][j][kc] += (self._paras[i]['w_SPP'] *
                                                        exp(-0.5 * tmp * tmp))
-                                    norms[i][j] += self._paras[i]['w_SPP']
+                                    norms[i][j][kc] += self._paras[i]['w_SPP']
 
                         for m in range(nneigh):
                             if (m != j) and (m != k) and (not flag_xaxis):
@@ -1774,37 +1806,41 @@ class LocalStructOrderParas(object):
                                 # angles between plane j-i-k and i-m vector.
                                 if not flag_xaxis and not flag_xtwoaxis:
                                     for i, t in enumerate(self._types):
-                                        if t in ["tri_plan", "tet"]:
+                                        if t in ["tri_plan", "tri_plan_max", \
+                                                 "tet", "tet_max"]:
                                             tmp = self._paras[i]['IGW_TA'] * (
-                                                    thetam * ipi -
-                                                    self._paras[i]['TA'])
+                                                thetam * ipi -
+                                                self._paras[i]['TA'])
                                             tmp2 = cos(
                                                 self._paras[i]['fac_AA'] *
                                                 phi) ** self._paras[i][
-                                                       'exp_cos_AA']
-                                            ops[i] += gaussthetak[i] * exp(
+                                                'exp_cos_AA']
+                                            tmp3 = 1 if t in ["tri_plan_max", "tet_max"] \
+                                                else gaussthetak[i]
+                                            qsptheta[i][j][kc] += tmp3 * exp(
                                                 -0.5 * tmp * tmp) * tmp2
-                                            norms[i][j] += 1
-                                        elif t == "pent_plan":
-                                            if thetak <= self._paras[i]['TA'] * pi and thetam >= self._paras[i]['TA'] * pi:
-                                                tmp = self._paras[i][
-                                                          'IGW_TA'] * (
-                                                              thetam * ipi - 0.8)
-                                                tmp2 = cos(phi)
-                                                ops[i] += gaussthetak[i] * exp(-0.5 * tmp * tmp) * tmp2 * tmp2
-                                                norms[i][j] += 1
+                                            norms[i][j][kc] += 1
+                                        elif t in ["pent_plan", "pent_plan_max"]:
+                                            tmp = 0.4 if thetam <= self._paras[i]['TA'] * pi \
+                                                    else 0.8
+                                            tmp2 = self._paras[i]['IGW_TA'] * (
+                                                    thetam * ipi - tmp)
+                                            tmp3 = cos(phi)
+                                            tmp4 = 1 if t == "pent_plan_max" \
+                                                else gaussthetak[i]
+                                            qsptheta[i][j][kc] += tmp4 * exp(
+                                                    -0.5 * tmp2 * tmp2) * tmp3 * tmp3
+                                            norms[i][j][kc] += 1
                                         elif t in ["T", "tri_pyr", "sq_pyr",
                                                    "pent_pyr", "hex_pyr"]:
                                             tmp = cos(self._paras[i]['fac_AA'] *
                                                       phi) ** self._paras[i][
                                                       'exp_cos_AA']
-                                            tmp2 = self._paras[i]['IGW_EP'] * (
-                                                    thetak * ipi - 0.5)
                                             tmp3 = self._paras[i]['IGW_EP'] * (
                                                     thetam * ipi - 0.5)
-                                            qsptheta[i][j] += tmp * exp(
-                                                -0.5 * tmp2 * tmp2) * exp(
+                                            qsptheta[i][j][kc] += tmp * exp(
                                                 -0.5 * tmp3 * tmp3)
+<<<<<<< HEAD
                                             norms[i][j] += 1
                                         elif t in ["sq_plan", "oct",
                                                    "oct_legacy", "tri_bipyr",
@@ -1821,9 +1857,22 @@ class LocalStructOrderParas(object):
                                                 tmp2 = self._paras[i][
                                                            'IGW_EP'] * tmptheta
                                                 qsptheta[i][j] += tmp * exp(-0.5 * tmp2 * tmp2)
+=======
+                                            norms[i][j][kc] += 1
+                                        elif t in ["sq_plan", "oct", "oct_legacy", 
+                                                   "tri_bipyr", "sq_bipyr", "pent_bipyr",
+                                                   "hex_bipyr", "oct_max", "sq_plan_max"]:
+                                            if thetak < self._paras[i]['min_SPP'] and \
+                                                    thetam < self._paras[i]['min_SPP']:
+                                                tmp = cos(self._paras[i]['fac_AA'] *
+                                                        phi) ** self._paras[i]['exp_cos_AA']
+                                                tmp2 = self._paras[i]['IGW_EP'] * (
+                                                        thetam * ipi - 0.5)
+                                                qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
+>>>>>>> dc3e3e634301ad20bbf6bcb81e02b90328d7b11b
                                                 if t == "oct_legacy":
-                                                    qsptheta[i][j] -= tmp * self._paras[i][6] * self._paras[i][7]
-                                                norms[i][j] += 1
+                                                    qsptheta[i][j][kc] -= tmp * self._paras[i][6] * self._paras[i][7]
+                                                norms[i][j][kc] += 1
                                         elif t == "bcc" and j < k:
                                             if thetak < self._paras[i]['min_SPP']:
                                                 if thetak > piover2:
@@ -1832,47 +1881,51 @@ class LocalStructOrderParas(object):
                                                     fac = -1.0
                                                 tmp = (thetam - piover2) / (
                                                         19.47 * pi / 180.0)
-                                                qsptheta[i][j] += fac * cos(
+                                                qsptheta[i][j][kc] += fac * cos(
                                                     3.0 * phi) * fac_bcc * \
                                                     tmp * exp(-0.5 * tmp * tmp)
                                         elif t == "see_saw":
-                                            if thetak < self._paras[i]['min_SPP'] and thetam < self._paras[i]['min_SPP']:
-                                                tmp = self._paras[i][
-                                                          'IGW_EP'] * (
-                                                              phi * ipi - 0.5)
-                                                tmp2 = self._paras[i][
-                                                           'IGW_EP'] * (
-                                                               thetam * ipi - 0.5)
-                                                qsptheta[i][j] += exp(-0.5 * tmp * tmp) * exp(-0.5 * tmp2 * tmp2)
-                                                norms[i][j] += 1.0
-                                        elif t == "cuboct":
-                                            if thetam < self._paras[i]['min_SPP'] and thetak > self._paras[i][4] and thetak < self._paras[i][2]:
-                                                if thetam > self._paras[i][4] and thetam < self._paras[i][2]:
+                                            if thetak < self._paras[i]['min_SPP'] and \
+                                                    thetam < self._paras[i]['min_SPP']:
+                                                tmp = self._paras[i]['IGW_phi'] * (
+                                                        phi * ipi - 0.5)
+                                                tmp2 = self._paras[i]['IGW_EP'] * (
+                                                        thetam * ipi - 0.5)
+                                                qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp) * \
+                                                        exp(-0.5 * tmp2 * tmp2)
+                                                norms[i][j][kc] += 1.0
+                                        elif t in ["cuboct", "cuboct_max"]:
+                                            if thetam < self._paras[i]['min_SPP'] and \
+                                                    thetak > self._paras[i][4] and \
+                                                    thetak < self._paras[i][2]:
+                                                if thetam > self._paras[i][4] and \
+                                                        thetam < self._paras[i][2]:
                                                     tmp = cos(phi)
                                                     tmp2 = self._paras[i][5] * (thetam * ipi - 0.5)
-                                                    qsptheta[i][j] += tmp * tmp * exp(-0.5 * tmp2 * tmp2)
-                                                    norms[i][j] += 1.0
+                                                    qsptheta[i][j][kc] += tmp * tmp * exp(-0.5 * tmp2 * tmp2)
+                                                    norms[i][j][kc] += 1.0
                                                 elif thetam < self._paras[i][4]:
-                                                    tmp = 0.0556 * (
-                                                            cos(
-                                                                phi - 0.5 * pi) - 0.81649658)
+                                                    tmp = 0.0556 * (cos(
+                                                            phi - 0.5 * pi) - 0.81649658)
                                                     tmp2 = self._paras[i][6] * (
                                                             thetam * ipi - onethird)
-                                                    qsptheta[i][j] += exp(
+                                                    qsptheta[i][j][kc] += exp(
                                                         -0.5 * tmp * tmp) * \
-                                                                      exp(
-                                                                          -0.5 * tmp2 * tmp2)
-                                                    norms[i][j] += 1.0
+                                                        exp(-0.5 * tmp2 * tmp2)
+                                                    norms[i][j][kc] += 1.0
                                                 elif thetam > self._paras[i][2]:
-                                                    tmp = 0.0556 * (
-                                                            cos(
-                                                                phi - 0.5 * pi) - 0.81649658)
-                                                    tmp2 = self._paras[i][6] * (thetam * ipi - twothird)
-                                                    qsptheta[i][j] += exp(-0.5 * tmp * tmp) * exp(-0.5 * tmp2 * tmp2)
-                                                    norms[i][j] += 1.0
+                                                    tmp = 0.0556 * (cos(phi - 0.5 * pi) - \
+                                                            0.81649658)
+                                                    tmp2 = self._paras[i][6] * (thetam * ipi - \
+                                                            twothird)
+                                                    qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp) * \
+                                                            exp(-0.5 * tmp2 * tmp2)
+                                                    norms[i][j][kc] += 1.0
+                        kc += 1
 
             # Normalize Peters-style OPs.
             for i, t in enumerate(self._types):
+<<<<<<< HEAD
                 if t in ["tri_plan", "tet", "pent_plan"]:
                     ops[i] = ops[i] / sum(norms[i]) \
                         if sum(norms[i]) > 1.0e-12 else None
@@ -1882,12 +1935,36 @@ class LocalStructOrderParas(object):
                 elif t in ["T", "tri_pyr", "see_saw", "sq_pyr", "tri_bipyr",
                            "sq_bipyr", "pent_pyr", "hex_pyr", "pent_bipyr",
                            "hex_bipyr"]:
+=======
+                #if t == "pent_plan":
+                #    ops[i] = ops[i] / sum(norms[i]) \
+                #        if sum(norms[i]) > 1.0e-12 else None
+                if t in ["tri_plan", "tet", "bent", "sq_plan",
+                           "oct", "oct_legacy", "cuboct", "pent_plan"]:
+                    ops[i] = tmp_norm = 0.0
+>>>>>>> dc3e3e634301ad20bbf6bcb81e02b90328d7b11b
                     for j in range(nneigh):
-                        qsptheta[i][j] = qsptheta[i][j] / norms[i][j] \
-                            if norms[i][j] > 1.0e-12 else 0.0
-                    ops[i] = max(qsptheta[i]) if len(qsptheta[i]) > 0 else None
+                        ops[i] += sum(qsptheta[i][j])
+                        tmp_norm += sum(norms[i][j])
+                    ops[i] = ops[i] / tmp_norm if tmp_norm > 1.0e-12 else None
+                elif t in ["T", "tri_pyr", "see_saw", "sq_pyr", "tri_bipyr",
+                        "sq_bipyr", "pent_pyr", "hex_pyr", "pent_bipyr",
+                        "hex_bipyr", "oct_max", "tri_plan_max", "tet_max",
+                        "sq_plan_max", "pent_plan_max", "cuboct_max"]:
+                    ops[i] = None
+                    if nneigh > 1:
+                        for j in range(nneigh):
+                            for k in range(len(qsptheta[i][j])):
+                                qsptheta[i][j][k] = qsptheta[i][j][k] / norms[i][j][k] \
+                                    if norms[i][j][k] > 1.0e-12 else 0.0
+                            ops[i] = max(qsptheta[i][j]) if j == 0 \
+                                    else max(ops[i], max(qsptheta[i][j]))
+                    #ops[i] = max(qsptheta[i]) if len(qsptheta[i]) > 0 else None
                 elif t == "bcc":
-                    ops[i] = sum(qsptheta[i]) / float(0.5 * float(
+                    ops[i] = 0.0
+                    for j in range(nneigh):
+                        ops[i] += sum(qsptheta[i][j])
+                    ops[i] = ops[i] / float(0.5 * float(
                         nneigh * (6 + (nneigh - 2) * (nneigh - 3)))) \
                         if nneigh > 3 else None
                 elif t == "sq_pyr_legacy":
@@ -1897,8 +1974,11 @@ class LocalStructOrderParas(object):
                         for d in dist:
                             tmp = self._paras[i][2] * (d - dmean)
                             acc = acc + exp(-0.5 * tmp * tmp)
-                        ops[i] = acc * max(qsptheta[i]) / float(
-                            nneigh * (nneigh - 1))
+                        for j in range(nneigh):
+                            ops[i] = max(qsptheta[i][j]) if j == 0 \
+                                    else max(ops[i], max(qsptheta[i][j]))
+                        ops[i] = acc * ops[i] / float(nneigh)
+                            #nneigh * (nneigh - 1))
                     else:
                         ops[i] = None
 
