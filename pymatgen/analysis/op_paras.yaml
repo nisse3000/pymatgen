@@ -9,7 +9,7 @@ bent:
     15
 T:
   IGW_EP:
-    18
+    11.2
   fac_AA:
     1
   exp_cos_AA:
@@ -81,7 +81,7 @@ pent_plan:
     18
 tri_pyr:
   IGW_EP:
-    18
+    13.6
   fac_AA:
     1.5
   exp_cos_AA:
