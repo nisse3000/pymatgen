@@ -51,7 +51,7 @@ oct_max:
   IGW_EP:
     18
   w_SPP:
-    3
+    1
   fac_AA:
     2
   exp_cos_AA:
@@ -170,7 +170,7 @@ tri_bipyr:
   exp_cos_AA:
     2
   w_SPP:
-    2
+    1
 sq_bipyr:
   min_SPP:
     2.356194490192345
@@ -183,7 +183,7 @@ sq_bipyr:
   exp_cos_AA:
     2
   w_SPP:
-    3
+    1
 pent_bipyr:
   min_SPP:
     2.356194490192345
@@ -196,7 +196,7 @@ pent_bipyr:
   exp_cos_AA:
     2
   w_SPP:
-    4
+    1
 hex_bipyr:
   min_SPP:
     2.356194490192345
@@ -209,7 +209,7 @@ hex_bipyr:
   exp_cos_AA:
     2
   w_SPP:
-    5
+    1
 cuboct:
   min_SPP:
     2.792526803190927
