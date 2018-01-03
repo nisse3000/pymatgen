@@ -16,7 +16,7 @@ T:
     2
 see_saw_rect:
   min_SPP:
-    2.792526803190927
+    2.356194490192345
   IGW_SPP:
     15
   IGW_EP:
@@ -45,7 +45,7 @@ tet:
     2
 oct_max:
   min_SPP:
-    2.792526803190927
+    2.356194490192345
   IGW_SPP:
     15
   IGW_EP:
@@ -71,7 +71,7 @@ oct:
     2
 bcc:
   min_SPP:
-    2.792526803190927
+    2.5261129449194057
   IGW_SPP:
     15
   w_SPP:
@@ -109,7 +109,7 @@ sq_plan:
     2
 sq_plan_max:
   min_SPP:
-    2.792526803190927
+    2.356194490192345
   IGW_SPP:
     15
   IGW_EP:
@@ -160,7 +160,7 @@ hex_pyr:
     2
 tri_bipyr:
   min_SPP:
-    2.792526803190927
+    2.356194490192345
   IGW_SPP:
     15
   IGW_EP:
@@ -173,7 +173,7 @@ tri_bipyr:
     2
 sq_bipyr:
   min_SPP:
-    2.792526803190927
+    2.356194490192345
   IGW_SPP:
     15
   IGW_EP:
@@ -186,7 +186,7 @@ sq_bipyr:
     3
 pent_bipyr:
   min_SPP:
-    2.792526803190927
+    2.356194490192345
   IGW_SPP:
     15
   IGW_EP:
@@ -199,7 +199,7 @@ pent_bipyr:
     4
 hex_bipyr:
   min_SPP:
-    2.792526803190927
+    2.356194490192345
   IGW_SPP:
     15
   IGW_EP:
@@ -275,7 +275,7 @@ sq_pyr_legacy:
     10
 hex_plan_max:
   min_SPP:
-    2.792526803190927
+    2.6179938779914944
   IGW_SPP:
     15
   w_SPP:
