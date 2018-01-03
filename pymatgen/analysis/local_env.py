@@ -1889,15 +1889,15 @@ class LocalStructOrderParas(object):
                                                     3.0 * phi) * fac_bcc * \
                                                     tmp * exp(-0.5 * tmp * tmp)
                                         elif t == "see_saw":
-                                            if thetam < self._paras[i]['min_SPP'] and phi < 3*pi/4:
-                                                if thetak < self._paras[i]['min_SPP']:
+                                            if thetam < self._paras[i]['min_SPP']:
+                                                if thetak < self._paras[i]['min_SPP'] and phi < 0.75 * pi:
                                                     #tmp = self._paras[i]['IGW_phi'] * (
                                                     #        phi * ipi - 0.5)
-                                                    tmp = tmp = cos(self._paras[i]['fac_AA'] *
+                                                    tmp = cos(self._paras[i]['fac_AA'] *
                                                             phi) ** self._paras[i]['exp_cos_AA']
                                                     tmp2 = self._paras[i]['IGW_EP'] * (
                                                             thetam * ipi - 0.5)
-                                                    qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp) * \
+                                                    qsptheta[i][j][kc] += tmp * \
                                                             exp(-0.5 * tmp2 * tmp2)
                                                     norms[i][j][kc] += 1.0
                                             else:
