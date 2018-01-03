@@ -225,8 +225,8 @@ class MotifIdentificationTest(PymatgenTest):
         for i in range(self.cscl.num_sites):
             self.assertEqual(site_is_of_motif_type(
                     self.cscl, i), "bcc")
-        # xxx only temp self.assertEqual(site_is_of_motif_type(
-        #        self.square_pyramid, 0), "square pyramidal")
+        self.assertEqual(site_is_of_motif_type(
+                self.square_pyramid, 0), "square pyramidal")
         for i in range(1, self.square_pyramid.num_sites):
             self.assertEqual(site_is_of_motif_type(
                     self.square_pyramid, i), "unrecognized")
@@ -423,8 +423,6 @@ class LocalStructOrderParasTest(PymatgenTest):
             [1.4199, 0, 0], [-1.4199, 0, 0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
-        from pymatgen.io.xyz import XYZ
-        XYZ(self.hexagonal_planar).write_file('tmp.xyz')
         self.hexagonal_pyramid = Structure(
             Lattice.from_lengths_and_angles(
             [30, 30, 30], [90, 90, 90]), \
@@ -488,7 +486,7 @@ class LocalStructOrderParasTest(PymatgenTest):
             "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
             "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
             "see_saw", "hex_plan_max", "tet_max", "oct_max", "tri_plan_max", "sq_plan_max", \
-            "pent_plan_max", "cuboct_max"] # 32
+            "pent_plan_max", "cuboct_max"]
         op_paras = [None for i in range(len(op_types))]
         op_paras[1] = {'TA': 1, 'IGW_TA': 1./0.0667}
         op_paras[2] = {'TA': 45./180, 'IGW_TA': 1./0.0667}
@@ -608,7 +606,7 @@ class LocalStructOrderParasTest(PymatgenTest):
         # Pentagonal planar.
         op_vals = ops_101.get_order_parameters(
                 self.pentagonal_planar.sites, 0, indices_neighs=[1,2,3,4,5])
-        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 49) # 33)
+        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 49)
         self.assertAlmostEqual(int(op_vals[16] * 1000 + 0.5), 1000)
         self.assertAlmostEqual(int(op_vals[31] * 1000 + 0.5), 1000)
 
@@ -620,7 +618,7 @@ class LocalStructOrderParasTest(PymatgenTest):
         # Square pyramid motif.
         op_vals = ops_101.get_order_parameters(self.square_pyramid, 0)
         self.assertAlmostEqual(int(op_vals[11] * 1000 + 0.5), 1000)
-        # xxx temp self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 375) # tri bipyr
+        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 667)
         self.assertAlmostEqual(int(op_vals[17] * 1000 + 0.5), 1000)
 
         # Pentagonal pyramid motif.
