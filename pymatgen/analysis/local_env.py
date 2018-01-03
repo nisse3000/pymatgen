@@ -1027,11 +1027,12 @@ class LocalStructOrderParas(object):
         if "sgl_bd" in self._types:
             self._computerijs = True
         if not set(self._types).isdisjoint(
-                ["tet", "oct", "bcc", "sq_pyr", "sq_pyr_legacy", \
-                 "tri_bipyr", "sq_bipyr", "oct_legacy", "tri_plan", \
-                 "sq_plan", "pent_plan",  "tri_pyr", "pent_pyr", "hex_pyr", \
-                 "pent_bipyr", "hex_bipyr", "T", "cuboct", "oct_max", "tet_max", \
-                 "tri_plan_max", "sq_plan_max", "pent_plan_max", "cuboct_max"]):
+                ["tet", "oct", "bcc", "sq_pyr", "sq_pyr_legacy",
+                 "tri_bipyr", "sq_bipyr", "oct_legacy", "tri_plan",
+                 "sq_plan", "pent_plan",  "tri_pyr", "pent_pyr", "hex_pyr",
+                 "pent_bipyr", "hex_bipyr", "T", "cuboct", "oct_max", "tet_max",
+                 "tri_plan_max", "sq_plan_max", "pent_plan_max", "cuboct_max",
+                 "bent", "see_saw"]):
             self._computerijs = self._geomops = True
         if not set(self._types).isdisjoint(["reg_tri", "sq"]):
             self._computerijs = self._computerjks = self._geomops2 = True
@@ -1888,10 +1889,12 @@ class LocalStructOrderParas(object):
                                                     3.0 * phi) * fac_bcc * \
                                                     tmp * exp(-0.5 * tmp * tmp)
                                         elif t == "see_saw":
-                                            if thetam < self._paras[i]['min_SPP']:
+                                            if thetam < self._paras[i]['min_SPP'] and phi < 3*pi/4:
                                                 if thetak < self._paras[i]['min_SPP']:
-                                                    tmp = self._paras[i]['IGW_phi'] * (
-                                                            phi * ipi - 0.5)
+                                                    #tmp = self._paras[i]['IGW_phi'] * (
+                                                    #        phi * ipi - 0.5)
+                                                    tmp = tmp = cos(self._paras[i]['fac_AA'] *
+                                                            phi) ** self._paras[i]['exp_cos_AA']
                                                     tmp2 = self._paras[i]['IGW_EP'] * (
                                                             thetam * ipi - 0.5)
                                                     qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp) * \
@@ -1941,7 +1944,7 @@ class LocalStructOrderParas(object):
                     ops[i] = tmp_norm = 0.0
                     for j in range(nneigh):
                         ops[i] += sum(qsptheta[i][j])
-                        tmp_norm += sum(norms[i][j])
+                        tmp_norm += float(sum(norms[i][j]))
                     ops[i] = ops[i] / tmp_norm if tmp_norm > 1.0e-12 else None
                 elif t in ["T", "tri_pyr", "see_saw", "sq_pyr", "tri_bipyr",
                         "sq_bipyr", "pent_pyr", "hex_pyr", "pent_bipyr",
