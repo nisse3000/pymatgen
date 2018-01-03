@@ -897,7 +897,7 @@ class LocalStructOrderParas(object):
         "sq_plan_max", "pent_plan", "pent_plan_max", "sq", "tet", "tet_max", "tri_pyr", \
         "sq_pyr", "sq_pyr_legacy", "tri_bipyr", "sq_bipyr", "oct", \
         "oct_legacy", "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", \
-        "T", "cuboct", "cuboct_max", "see_saw", "bcc", "q2", "q4", "q6", "oct_max", "hex_plan_max")
+        "T", "cuboct", "cuboct_max", "see_saw_rect", "bcc", "q2", "q4", "q6", "oct_max", "hex_plan_max")
 
     def __init__(self, types, parameters=None, cutoff=-10.0):
         """
@@ -912,7 +912,7 @@ class LocalStructOrderParas(object):
                   "bent": bent (angular) coordinations
                           (Zimmermann & Jain, in progress, 2017);
                   "T": T-shape coordinations;
-                  "see_saw": see saw-like coordinations;
+                  "see_saw_rect": see saw-like coordinations;
                   "tet": tetrahedra
                          (Zimmermann et al., submitted, 2017);
                   "oct": octahedra
@@ -965,7 +965,7 @@ class LocalStructOrderParas(object):
                       "tri_plan" (13.5), "pent_plan" (18),
                       "sq_pyr_legacy" (30)).
                   "IGW_EP": IGW for penalizing angles away from the
-                      equatorial plane (EP) at 90 degrees ("T", "see_saw",
+                      equatorial plane (EP) at 90 degrees ("T", "see_saw_rect",
                       "oct", "sq_plan", "tri_pyr", "sq_pyr", "pent_pyr",
                       "hex_pyr", "tri_bipyr", "sq_bipyr", "pent_bipyr",
                       "hex_bipyr", and "oct_legacy" (18)).
@@ -982,16 +982,16 @@ class LocalStructOrderParas(object):
                       and "oct_legacy" (2)).
                   "min_SPP": smallest angle (in radians) to consider
                       a neighbor to be
-                      at South pole position ("see_saw", "oct", "bcc",
+                      at South pole position ("see_saw_rect", "oct", "bcc",
                       "sq_plan", "tri_bipyr", "sq_bipyr", "pent_bipyr",
                       "hex_bipyr", "cuboct", and "oct_legacy"
                       (2.792526803190927)).
                   "IGW_SPP": IGW for penalizing angles away from South
-                      pole position ("see_saw", "oct", "bcc", "sq_plan",
+                      pole position ("see_saw_rect", "oct", "bcc", "sq_plan",
                       "tri_bipyr", "sq_bipyr", "pent_bipyr", "hex_bipyr",
                       "cuboct", and "oct_legacy" (15)).
                   "w_SPP": weight for South pole position relative to
-                      equatorial positions ("see_saw" and "sq_plan" (1),
+                      equatorial positions ("see_saw_rect" and "sq_plan" (1),
                       "cuboct" (1.8), "tri_bipyr" (2), "oct",
                       "sq_bipyr", and "oct_legacy" (3), "pent_bipyr" (4),
                       "hex_bipyr" (5), "bcc" (6)).
@@ -1032,7 +1032,7 @@ class LocalStructOrderParas(object):
                  "sq_plan", "pent_plan",  "tri_pyr", "pent_pyr", "hex_pyr",
                  "pent_bipyr", "hex_bipyr", "T", "cuboct", "oct_max", "tet_max",
                  "tri_plan_max", "sq_plan_max", "pent_plan_max", "cuboct_max",
-                 "bent", "see_saw"]):
+                 "bent", "see_saw_rect"]):
             self._computerijs = self._geomops = True
         if not set(self._types).isdisjoint(["reg_tri", "sq"]):
             self._computerijs = self._computerjks = self._geomops2 = True
@@ -1738,34 +1738,14 @@ class LocalStructOrderParas(object):
                                 norms[i][j][kc] += 1
                             elif t in ["sq_plan", "oct", "oct_legacy",
                                        "cuboct", "cuboct_max"]:
-                                       #"see_saw", "tri_bipyr", "sq_bipyr",
-                                       #"pent_bipyr", "hex_bipyr", "cuboct",
-                                       #"oct_max", "sq_plan_max", "cuboct_max",
-                                       #"hex_plan_max"]:
                                 if thetak >= self._paras[i]['min_SPP']:
                                     tmp = self._paras[i]['IGW_SPP'] * (
                                             thetak * ipi - 1.0)
-                                    #if t in ["tri_bipyr", "sq_bipyr",
-                                    #         "pent_bipyr", "hex_bipyr"]:
-                                    #    qsptheta[i][j] = (
-                                    #            self._paras[i]['w_SPP'] *
-                                    #            exp(-0.5 * tmp * tmp))
-                                    #else:
                                     qsptheta[i][j][kc] += (
                                             self._paras[i]['w_SPP'] *
                                             exp(-0.5 * tmp * tmp))
                                     norms[i][j][kc] += self._paras[i]['w_SPP']
-                                #elif t in ["see_saw", "tri_bipyr", "sq_bipyr",
-                                #           "pent_bipyr", "hex_bipyr", "oct_max",
-                                #           "sq_plan_max", "hex_plan_max"]:
-                                #    tmp = self._paras[i]['IGW_EP'] * (
-                                #            thetak * ipi - 0.5) if t != "hex_plan_max" else
-                                #            self._paras[i]['IGW_TA'] * (
-                                #            fabs(thetak * ipi - 0.5) - self._paras[i]['TA'])
-                                #    qsptheta[i][j][kc] += exp(
-                                #        -0.5 * tmp * tmp)
-                                #    norms[i][j][kc] += 1
-                            elif t in ["see_saw", "tri_bipyr", "sq_bipyr",
+                            elif t in ["see_saw_rect", "tri_bipyr", "sq_bipyr",
                                        "pent_bipyr", "hex_bipyr", "oct_max",
                                        "sq_plan_max", "hex_plan_max"]:
                                 if thetak < self._paras[i]['min_SPP']:
@@ -1888,11 +1868,9 @@ class LocalStructOrderParas(object):
                                                 qsptheta[i][j][kc] += fac * cos(
                                                     3.0 * phi) * fac_bcc * \
                                                     tmp * exp(-0.5 * tmp * tmp)
-                                        elif t == "see_saw":
+                                        elif t == "see_saw_rect":
                                             if thetam < self._paras[i]['min_SPP']:
                                                 if thetak < self._paras[i]['min_SPP'] and phi < 0.75 * pi:
-                                                    #tmp = self._paras[i]['IGW_phi'] * (
-                                                    #        phi * ipi - 0.5)
                                                     tmp = cos(self._paras[i]['fac_AA'] *
                                                             phi) ** self._paras[i]['exp_cos_AA']
                                                     tmp2 = self._paras[i]['IGW_EP'] * (
@@ -1946,7 +1924,7 @@ class LocalStructOrderParas(object):
                         ops[i] += sum(qsptheta[i][j])
                         tmp_norm += float(sum(norms[i][j]))
                     ops[i] = ops[i] / tmp_norm if tmp_norm > 1.0e-12 else None
-                elif t in ["T", "tri_pyr", "see_saw", "sq_pyr", "tri_bipyr",
+                elif t in ["T", "tri_pyr", "see_saw_rect", "sq_pyr", "tri_bipyr",
                         "sq_bipyr", "pent_pyr", "hex_pyr", "pent_bipyr",
                         "hex_bipyr", "oct_max", "tri_plan_max", "tet_max",
                         "sq_plan_max", "pent_plan_max", "cuboct_max"]:

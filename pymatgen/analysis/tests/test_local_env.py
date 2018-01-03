@@ -466,14 +466,14 @@ class LocalStructOrderParasTest(PymatgenTest):
             [14.5, 14.5, 15], [14.5, 15.5, 15], [15.5, 14.5, 15], [15.5, 15.5, 15]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
-        self.see_saw = Structure(
+        self.see_saw_rect = Structure(
             Lattice.from_lengths_and_angles(
             [30, 30, 30], [90, 90, 90]),
             ["H", "H", "H", "H", "H"],
-            [[15, 15, 15], [15, 15, 14], [15, 15, 16], [15, 14, 15], [14, 15, 15]],
+            [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, -1.0 , 0.0],
+            [0.0, 0.0, -1.0], [-1.0, 0.0, 0.0]],
             validate_proximity=False, to_unit_cell=False,
             coords_are_cartesian=True, site_properties=None)
-
 
     def test_init(self):
         self.assertIsNotNone(
@@ -485,7 +485,7 @@ class LocalStructOrderParasTest(PymatgenTest):
             "q6", "reg_tri", "sq", "sq_pyr_legacy", "tri_bipyr", "sgl_bd", \
             "tri_plan", "sq_plan", "pent_plan", "sq_pyr", "tri_pyr", \
             "pent_pyr", "hex_pyr", "pent_bipyr", "hex_bipyr", "T", "cuboct", \
-            "see_saw", "hex_plan_max", "tet_max", "oct_max", "tri_plan_max", "sq_plan_max", \
+            "see_saw_rect", "hex_plan_max", "tet_max", "oct_max", "tri_plan_max", "sq_plan_max", \
             "pent_plan_max", "cuboct_max"]
         op_paras = [None for i in range(len(op_types))]
         op_paras[1] = {'TA': 1, 'IGW_TA': 1./0.0667}
@@ -655,7 +655,7 @@ class LocalStructOrderParasTest(PymatgenTest):
 
         # See-saw motif.
         op_vals = ops_101.get_order_parameters(
-            self.see_saw, 0, indices_neighs=[i for i in range(1, 5)])
+            self.see_saw_rect, 0, indices_neighs=[i for i in range(1, 5)])
         self.assertAlmostEqual(int(op_vals[25] * 1000 + 0.5), 1000)
 
         # Hexagonal planar motif.
@@ -692,7 +692,7 @@ class LocalStructOrderParasTest(PymatgenTest):
         del self.pentagonal_bipyramid
         del self.T_shape
         del self.cuboctahedron
-        del self.see_saw
+        del self.see_saw_rect
 
 
 if __name__ == '__main__':
