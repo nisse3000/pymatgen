@@ -1789,6 +1789,16 @@ class LocalStructOrderParas(object):
                                         min(np.inner(xtwoaxis, xaxis), 1.0)))
                                     flag_xtwoaxis = False
 
+                                # South pole contributions of m.
+                                if t in ["tri_bipyr", "sq_bipyr", "pent_bipyr",
+                                         "hex_bipyr", "oct_max", "sq_plan_max",
+                                         "hex_plan_max", "see_saw_rect"]:
+                                    if thetam >= self._paras[i]['min_SPP']:
+                                        tmp = self._paras[i]['IGW_SPP'] * (
+                                                thetam * ipi - 1.0)
+                                        qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
+                                        norms[i][j][kc] += 1
+
                                 # Contributions of j-i-m angle and
                                 # angles between plane j-i-k and i-m vector.
                                 if not flag_xaxis and not flag_xtwoaxis:
@@ -1852,11 +1862,6 @@ class LocalStructOrderParas(object):
                                                             fabs(thetam * ipi - 0.5) - self._paras[i]['TA'])
                                                     qsptheta[i][j][kc] += tmp * exp(-0.5 * tmp2 * tmp2)
                                                     norms[i][j][kc] += 1
-                                            else:
-                                                tmp = self._paras[i]['IGW_SPP'] * (
-                                                        thetam * ipi - 1.0)
-                                                qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
-                                                norms[i][j][kc] += 1
                                         elif t == "bcc" and j < k:
                                             if thetak < self._paras[i]['min_SPP']:
                                                 if thetak > piover2:
@@ -1878,11 +1883,6 @@ class LocalStructOrderParas(object):
                                                     qsptheta[i][j][kc] += tmp * \
                                                             exp(-0.5 * tmp2 * tmp2)
                                                     norms[i][j][kc] += 1.0
-                                            else:
-                                                tmp = self._paras[i]['IGW_SPP'] * (
-                                                        thetam * ipi - 1.0)
-                                                qsptheta[i][j][kc] += exp(-0.5 * tmp * tmp)
-                                                norms[i][j][kc] += 1
                                         elif t in ["cuboct", "cuboct_max"]:
                                             if thetam < self._paras[i]['min_SPP'] and \
                                                     thetak > self._paras[i][4] and \
