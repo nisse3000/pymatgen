@@ -573,7 +573,7 @@ class LocalStructOrderParasTest(PymatgenTest):
         self.assertAlmostEqual(op_vals[0], 4.0)
         self.assertAlmostEqual(int(op_vals[3] * 1000), 1000)
         self.assertAlmostEqual(int(op_vals[4] * 1000), 37)
-        self.assertAlmostEqual(int(op_vals[5] * 1000), 749)
+        self.assertAlmostEqual(op_vals[5], 0.75)
         self.assertAlmostEqual(int(op_vals[6] * 1000), 0)
         self.assertAlmostEqual(int(op_vals[7] * 1000), 509)
         self.assertAlmostEqual(int(op_vals[8] * 1000), 628)
@@ -606,7 +606,7 @@ class LocalStructOrderParasTest(PymatgenTest):
         # Pentagonal planar.
         op_vals = ops_101.get_order_parameters(
                 self.pentagonal_planar.sites, 0, indices_neighs=[1,2,3,4,5])
-        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 99)
+        self.assertAlmostEqual(int(op_vals[12] * 1000 + 0.5), 126)
         self.assertAlmostEqual(int(op_vals[16] * 1000 + 0.5), 1000)
         self.assertAlmostEqual(int(op_vals[31] * 1000 + 0.5), 1000)
 
