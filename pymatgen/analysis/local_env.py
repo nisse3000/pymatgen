@@ -1868,11 +1868,11 @@ class LocalStructOrderParas(object):
                                                     fac = 1.0
                                                 else:
                                                     fac = -1.0
-                                                tmp = (thetam - piover2) / (
-                                                        19.47 * pi / 180.0)
+                                                tmp = (thetam - piover2) / asin(1/3)
                                                 qsptheta[i][j][kc] += fac * cos(
                                                     3.0 * phi) * fac_bcc * \
                                                     tmp * exp(-0.5 * tmp * tmp)
+                                                norms[i][j][kc] += 1
                                         elif t == "see_saw_rect":
                                             if thetam < self._paras[i]['min_SPP']:
                                                 if thetak < self._paras[i]['min_SPP'] and phi < 0.75 * pi:
