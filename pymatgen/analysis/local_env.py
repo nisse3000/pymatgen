@@ -1927,7 +1927,7 @@ class LocalStructOrderParas(object):
                 elif t in ["T", "tri_pyr", "see_saw_rect", "sq_pyr", "tri_bipyr",
                         "sq_bipyr", "pent_pyr", "hex_pyr", "pent_bipyr",
                         "hex_bipyr", "oct_max", "tri_plan_max", "tet_max",
-                        "sq_plan_max", "pent_plan_max", "cuboct_max"]:
+                        "sq_plan_max", "pent_plan_max", "cuboct_max", "hex_plan_max"]:
                     ops[i] = None
                     if nneigh > 1:
                         for j in range(nneigh):

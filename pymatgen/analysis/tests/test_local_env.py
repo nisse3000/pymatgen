@@ -661,7 +661,7 @@ class LocalStructOrderParasTest(PymatgenTest):
         # Hexagonal planar motif.
         op_vals = ops_101.get_order_parameters(
             self.hexagonal_planar, 0, indices_neighs=[1,2,3,4,5,6])
-        #self.assertAlmostEqual(int(op_vals[26] * 1000 + 0.5), 1000)   
+        self.assertAlmostEqual(int(op_vals[26] * 1000 + 0.5), 1000)
 
         # Test providing explicit neighbor lists.
         op_vals = ops_101.get_order_parameters(self.bcc, 0, indices_neighs=[1])
