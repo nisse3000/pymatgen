@@ -1032,7 +1032,7 @@ class LocalStructOrderParas(object):
                  "sq_plan", "pent_plan",  "tri_pyr", "pent_pyr", "hex_pyr",
                  "pent_bipyr", "hex_bipyr", "T", "cuboct", "oct_max", "tet_max",
                  "tri_plan_max", "sq_plan_max", "pent_plan_max", "cuboct_max",
-                 "bent", "see_saw_rect"]):
+                 "bent", "see_saw_rect", "hex_plan_max"]):
             self._computerijs = self._geomops = True
         if not set(self._types).isdisjoint(["reg_tri", "sq"]):
             self._computerijs = self._computerjks = self._geomops2 = True
